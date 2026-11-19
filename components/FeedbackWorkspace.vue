@@ -196,6 +196,7 @@ onScopeDispose(() => {
       </ExtensionModal>
       <ExtensionResourceLayout
         v-model:pagination="pagination"
+        data-field-container="Pagination controls browse the feedback inbox."
         :data="inbox.reports"
         :columns="columns"
         :total-records="inbox.total"
