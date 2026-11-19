@@ -1,0 +1,27 @@
+{
+  "name": "@gcs-ssc/gcs-feedback",
+  "version": "0.1.0",
+  "description": "Agency feedback collection and review for GCS-SSC testing.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "vue-tsc --noEmit",
+    "test:unit": "bun test tests/unit",
+    "test:audit": "vitest run --config vitest.audit.config.ts"
+  },
+  "dependencies": {
+    "@gcs-ssc/extensions": "^0.4.0",
+    "h3": "^1.15.5",
+    "kysely": "^0.28.11",
+    "zod": "^4.3.6"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.28"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.0",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.2.4",
+    "vitest": "^4.1.12"
+  }
+}
