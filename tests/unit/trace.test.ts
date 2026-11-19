@@ -1,4 +1,4 @@
-import { expect, test } from 'bun:test'
+import { expect, test } from 'vitest'
 import { loadFeedbackTrace } from '../../trace'
 
 const events = '/api/admin/audit/events'
