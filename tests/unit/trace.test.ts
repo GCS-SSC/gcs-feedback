@@ -3,7 +3,7 @@ import { loadFeedbackTrace } from '../../trace'
 
 const events = '/api/admin/audit/events'
 const access = '/api/admin/audit/access'
-const report = { agencyId: '4', actorId: 'tester', createdAt: '2026-11-19T16:00:00.000Z' }
+const report = { actorId: 'tester', createdAt: '2026-11-19T16:00:00.000Z' }
 const sourceRow = {
   id: '1',
   kind: 'change',
@@ -12,12 +12,12 @@ const sourceRow = {
   created_at: '2026-11-19T15:58:00.000Z',
   actor_user_id: 'tester',
   request_id: 'request-1',
-  scope_type: 'agency',
-  agency_id: '4',
-  agency_ids: ['4']
+  scope_type: 'global',
+  agency_id: null,
+  agency_ids: []
 }
 
-test('filters actor, time, agency and redaction before exposing trace metadata', async () => {
+test('filters actor, time, scope and redaction before exposing trace metadata', async () => {
   const restricted = { ...sourceRow, id: '2' }
   const redacted = { ...sourceRow, id: '3' }
   const otherItems = [
@@ -25,7 +25,7 @@ test('filters actor, time, agency and redaction before exposing trace metadata',
     { ...sourceRow, id: '5', actor_user_id: 'other' },
     { ...sourceRow, id: '6', created_at: '2026-11-19T16:00:01.000Z' },
     { ...sourceRow, id: '7', created_at: '2026-11-19T15:29:59.000Z' },
-    { ...sourceRow, id: '8', scope_type: 'global' },
+    { ...sourceRow, id: '8', scope_type: 'agency' },
     { ...sourceRow, id: '9', agency_id: '5', agency_ids: ['5'] }
   ]
   const calls: string[] = []

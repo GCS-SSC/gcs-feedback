@@ -1,7 +1,7 @@
 {
   "name": "@gcs-ssc/gcs-feedback",
   "version": "0.1.0",
-  "description": "Agency feedback collection and review for GCS-SSC testing.",
+  "description": "System feedback collection and review for GCS-SSC.",
   "type": "module",
   "private": true,
   "scripts": {

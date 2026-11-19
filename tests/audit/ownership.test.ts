@@ -7,12 +7,12 @@ const { verifyExtensionAuditContract } = await import(new URL(
 verifyExtensionAuditContract(extension, [
   {
     table: 'extensions.gcs_feedback_reports',
-    row: { id: '0c3bd552-ded8-481c-815f-057ccbe852d8', agency_id: '11', actor_id: '7' },
-    agencies: ['11']
+    row: { id: '0c3bd552-ded8-481c-815f-057ccbe852d8', actor_id: '7' },
+    agencies: []
   },
   {
     table: 'extensions.gcs_feedback_reports',
-    row: { id: '2936d485-2bab-41ff-b6ab-5419b2aaaf85', agency_id: '22', actor_id: '7' },
-    agencies: ['22']
+    row: { id: '2936d485-2bab-41ff-b6ab-5419b2aaaf85', actor_id: '7' },
+    agencies: []
   }
 ])

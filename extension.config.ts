@@ -1,7 +1,6 @@
 import { defineGcsAuditOwnership, defineGcsExtension } from '@gcs-ssc/extensions'
 
 const label = { en: 'Feedback', fr: 'Commentaires' }
-const agency = { param: 'agencyId' }
 
 export default defineGcsExtension({
   key: 'gcs-feedback',
@@ -13,41 +12,33 @@ export default defineGcsExtension({
     path: './components/FeedbackModal.vue'
   },
   description: {
-    en: 'Collect and review feedback from agency testers.',
-    fr: 'Recueillir et examiner les commentaires des personnes qui testent l’application.'
+    en: 'Collect and review feedback from signed-in users.',
+    fr: 'Recueillir et examiner les commentaires des personnes connectées.'
   },
-  configurationScope: 'agency',
-  configurationAccess: 'manager',
+  configurationScope: 'system',
   requiredHostCapabilities: [
-    'agency-only-configuration', 'configuration-access', 'agency-config', 'agency-workspace',
-    'agency-workspace-navigation', 'signed-in-sidebar-modal', 'extension-ui', 'extension-api-client', 'host-api-client',
+    'system-extensions', 'signed-in-sidebar-modal', 'extension-ui', 'extension-api-client', 'host-api-client',
     'server-handlers', 'server-handler-rbac', 'migrations', 'audit-ownership'
   ],
   auditOwnership: defineGcsAuditOwnership([
-    { table: 'extensions.gcs_feedback_reports', owner: { kind: 'owner', owner: 'agency', column: 'agency_id' } }
+    { table: 'extensions.gcs_feedback_reports', owner: { kind: 'global', reason: 'Reports belong to the system Feedback inbox.' } }
   ]),
   admin: {
-    agency: { path: './components/FeedbackWorkspace.vue' },
-    agencyWorkspace: {
-      label,
-      icon: 'i-lucide-message-square',
-      navigation: { category: 'management', order: 90 },
-      tabs: [{ id: 'feedback', label }]
-    }
+    systemWorkspace: { path: './components/FeedbackWorkspace.vue' }
   },
   migrations: [{ path: './server/migration.ts' }],
   serverHandlers: [
     {
-      route: '/agencies/[agencyId]/reports',
+      route: '/reports',
       method: 'post',
       path: './server/submit.post.ts',
       auth: 'manual'
     },
     {
-      route: '/agencies/[agencyId]/reports',
+      route: '/reports',
       method: 'get',
       path: './server/inbox.get.ts',
-      rbac: { subject: 'agency', action: 'delete', agency }
+      rbac: { subject: 'system', action: 'delete', global: true }
     }
   ]
 })

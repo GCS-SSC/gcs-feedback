@@ -11,8 +11,8 @@ const paginationSchema = z.object({
 })
 
 export default defineGcsExtensionRouteHandler(async ({ authorizedScope, db, event }) => {
-  if (authorizedScope?.type !== 'agency' || !(db instanceof Kysely) || !isEvent(event)) {
-    throw new Error('Missing agency feedback inbox context.')
+  if (authorizedScope?.type !== 'global' || !(db instanceof Kysely) || !isEvent(event)) {
+    throw new Error('Missing system feedback inbox context.')
   }
   const pagination = paginationSchema.safeParse(getQuery(event))
   if (!pagination.success) {
@@ -22,20 +22,18 @@ export default defineGcsExtensionRouteHandler(async ({ authorizedScope, db, even
     })
   }
   const { page = 1, limit = 10 } = pagination.data
-  return await db.transaction().setIsolationLevel('repeatable read').execute(async trx => {
-    const { rows } = await sql`
+  const { rows: [inbox] } = await sql<{ reports: unknown; total: string }>`
+    WITH page AS (
       SELECT id, actor_id AS "actorId", category, description, steps, blocked, locale,
         to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAt"
       FROM extensions.gcs_feedback_reports
-      WHERE agency_id = ${authorizedScope.agencyId}
       ORDER BY created_at DESC, id DESC, actor_id DESC
       LIMIT ${limit} OFFSET ${(page - 1) * limit}
-    `.execute(trx)
-    const count = await sql<{ total: string }>`
-      SELECT count(*)::text AS total
-      FROM extensions.gcs_feedback_reports
-      WHERE agency_id = ${authorizedScope.agencyId}
-    `.execute(trx)
-    return inboxSchema.parse({ reports: rows, total: Number(count.rows[0]?.total) })
-  })
+    )
+    SELECT
+      coalesce(json_agg(page ORDER BY "createdAt" DESC, id DESC, "actorId" DESC), '[]'::json) AS reports,
+      (SELECT count(*) FROM extensions.gcs_feedback_reports)::text AS total
+    FROM page
+  `.execute(db)
+  return inboxSchema.parse({ reports: inbox?.reports, total: Number(inbox?.total) })
 })

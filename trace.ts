@@ -22,7 +22,7 @@ const detailSchema = z.looseObject(auditFields.shape).extend({
 })
 const accessId = z.uuid()
 
-type TraceReport = { agencyId: string; actorId: string; createdAt: string }
+type TraceReport = { actorId: string; createdAt: string }
 type AuditFields = z.infer<typeof auditFields>
 type Summary = z.infer<typeof summarySchema>
 type HostGet = (path: string, options?: {
@@ -42,9 +42,9 @@ export type TraceSource = { kind: 'ready'; records: TraceRecord[] } | { kind: 'u
 export type FeedbackTrace = Record<Source, TraceSource>
 
 /**
- * Accepts only events attributed exclusively to the report’s actor and agency in the report window.
+ * Accepts only system events attributed to the reporter in the report window.
  * @param row - The candidate event.
- * @param report - The verified reporter, agency, and submission timestamp.
+ * @param report - The verified reporter and submission timestamp.
  * @param from - Start of the window in milliseconds.
  * @param to - End of the window in milliseconds.
  * @returns Whether the event belongs in the report’s trace.
@@ -52,9 +52,9 @@ export type FeedbackTrace = Record<Source, TraceSource>
 const ownsRecord = (row: AuditFields, report: TraceReport, from: number, to: number) => {
   const timestamp = Date.parse(row.created_at)
   return row.actor_user_id === report.actorId && timestamp >= from && timestamp <= to
-    && row.scope_type === 'agency'
-    && (row.agency_id === null || row.agency_id === report.agencyId)
-    && (row.agency_ids.length > 0 ? row.agency_ids.every(id => id === report.agencyId) : row.agency_id !== null)
+    && row.scope_type === 'global'
+    && row.agency_id === null
+    && row.agency_ids.length === 0
 }
 
 /**
@@ -98,7 +98,7 @@ const hasRestrictedEvidence = (evidence: z.infer<typeof detailSchema>) => {
  * Checks redaction before projecting a bounded set of timeline entries.
  * @param get - The host API client using the reviewer’s session.
  * @param source - The host history source.
- * @param report - The verified reporter, agency, and submission timestamp.
+ * @param report - The verified reporter and submission timestamp.
  * @param from - Start of the window in milliseconds.
  * @param to - End of the window in milliseconds.
  * @param signal - Cancellation for the current report selection.
@@ -147,7 +147,7 @@ const loadSource = async (
 /**
  * Loads audit and access history independently so either source can be unavailable.
  * @param get - The host API client using the reviewer’s session.
- * @param report - The verified reporter, agency, and submission timestamp.
+ * @param report - The verified reporter and submission timestamp.
  * @param signal - Cancellation for the current report selection.
  * @returns The result for each history source.
  */

@@ -8,7 +8,6 @@ import { categories, receiptSchema, submissionSchema } from '../feedback.ts'
 import { messages } from '../i18n/messages.ts'
 
 defineSlots<{ default: () => unknown }>()
-const { agencyId } = defineProps<{ agencyId: string }>()
 const { locale, t } = useExtensionI18n(messages)
 const api = useExtensionApi('gcs-feedback')
 const open = ref(false)
@@ -73,7 +72,7 @@ const submit = async () => {
   }
   state.value = { kind: 'sending', id }
   try {
-    const receipt = receiptSchema.parse(await api.post(`/agencies/${encodeURIComponent(agencyId)}/reports`, parsed.data))
+    const receipt = receiptSchema.parse(await api.post('/reports', parsed.data))
     if (receipt.id !== id) throw new Error('Invalid feedback receipt.')
     if (disposed) return
     category.value = undefined
